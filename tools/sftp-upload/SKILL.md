@@ -1,11 +1,11 @@
 ---
 name: sftp-upload
-description: Upload a file to a remote server via SFTP (default host andrealorenzani.name, dir `ai`). Use when asked to upload/publish/copy a file somewhere online or to a subdomain.
+description: Upload a file to a remote server via SFTP (default host andrealorenzani.name, dir `<host>/ai`). Use when asked to upload/publish/copy a file somewhere online or to a subdomain.
 ---
 # sftp-upload
 Run: `python3 ~/.claude/skills/sftp-upload/scripts/upload.py FILE [--host SUB.andrealorenzani.name] [--dir DIR] [--force] [--trust-new-host]`
 
-- Defaults: host `andrealorenzani.name`, dir `ai` (created if missing, relative to login dir). Other known domain: `supermaestro.org`.
+- Defaults: host `andrealorenzani.name`, dir `<host>/ai`, e.g. `andrealorenzani.name/ai/` (created if missing, relative to login dir; for a subdomain `--host` the dir is `<subdomain host>/ai`). Other known domain: `supermaestro.org`.
 - Subdomain: pass `--host`. Credentials lookup: section for the exact host, else parent domain.
 - Prints `uploaded <file> -> host:path`; report that to the user.
 

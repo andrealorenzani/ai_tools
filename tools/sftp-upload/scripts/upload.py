@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Upload a file to a host over SFTP. Credentials from ~/.password (INI, chmod 600).
 
-Usage: upload.py FILE [--host andrealorenzani.name] [--dir ai] [--force] [--trust-new-host]
+Usage: upload.py FILE [--host andrealorenzani.name] [--dir <host>/ai] [--force] [--trust-new-host]
 """
 import argparse, configparser, os, posixpath, stat, subprocess, sys
 from pathlib import Path
@@ -53,7 +53,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("file")
     ap.add_argument("--host", default="andrealorenzani.name")
-    ap.add_argument("--dir", default="ai", help="remote dir, relative to login dir")
+    ap.add_argument("--dir", default=None, help="remote dir, relative to login dir (default: <host>/ai)")
     ap.add_argument("--force", action="store_true", help="overwrite existing remote file")
     ap.add_argument("--trust-new-host", action="store_true", help="accept unknown host key (first connect only)")
     a = ap.parse_args()
@@ -61,7 +61,7 @@ def main():
     src = Path(a.file).expanduser()
     if not src.is_file():
         die(f"{src} is not a file")
-    rdir = a.dir.strip("/")
+    rdir = (a.dir if a.dir is not None else f"{a.host}/ai").strip("/")
     if ".." in rdir.split("/"):
         die("remote dir must not contain '..'")
 

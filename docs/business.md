@@ -10,7 +10,7 @@
 
 **Inputs**: Local file path; optional host (subdomain of andrealorenzani.name or full domain), remote directory, and flags (--force to overwrite, --trust-new-host for unknown keys).
 
-**Behaviour**: Defaults to `andrealorenzani.name`, directory `ai`. Known domains: `andrealorenzani.name`, `supermaestro.org`. Subdomains need the full hostname in `--host`; credentials resolve from the exact host section, else the parent domain. Refuses to overwrite unless --force is used. Validates host key against `~/.ssh/known_hosts`; rejects unknown hosts unless --trust-new-host is confirmed. Rejects remote paths with `..`. Single file upload only.
+**Behaviour**: Defaults to `andrealorenzani.name`, directory `<host>/ai` (e.g. `andrealorenzani.name/ai/`; `--dir` overrides). Known domains: `andrealorenzani.name`, `supermaestro.org`. Subdomains need the full hostname in `--host`; credentials resolve from the exact host section, else the parent domain. Refuses to overwrite unless --force is used. Validates host key against `~/.ssh/known_hosts`; rejects unknown hosts unless --trust-new-host is confirmed. Rejects remote paths with `..`. Single file upload only.
 
 **Credentials**: `~/.password` (INI, chmod 600), with one `[host]` section per domain containing `user`, `password`, and optional `port` (default 22).
 
