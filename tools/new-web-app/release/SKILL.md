@@ -48,10 +48,10 @@ Use tracked files of the release commit so the zip is consistent and gitignored 
 ```
 V=<version>; mkdir -p release/$V
 git archive --format=zip --prefix=<project>-$V/ -o release/$V/$V.zip HEAD \
-  -- . ':(exclude)release' ':(exclude).deploy*' ':(exclude)config.php' ':(exclude).env' ':(exclude).env.*' ':(exclude)cache' ':(exclude).claude/settings.local.json'
+  -- . ':(exclude)release' ':(exclude).deploy*' ':(exclude)config.php' ':(exclude).env' ':(exclude).env.local' ':(exclude).env.*.local' ':(exclude)cache' ':(exclude).claude/settings.local.json'
 cp docs/changelog.md release/$V/changelog.md
 ```
-(Keep the example/template config files such as `config.php.example`, `.env.example`; adjust excludes to the project's real secret/cache names.) The zip contains all code and the `docs/` directory; it must exclude: `.git`, `release/`, secrets/config files, gitignored files, caches, `.deploy*` files. `.git` is never in `git archive`.
+(Do NOT use a broad `.env.*` exclude: it drops `.env.example`. Keep the example/template config files such as `config.php.example`, `.env.example`; adjust excludes to the project's real secret/cache names.) The zip contains all code and the `docs/` directory; it must exclude: `.git`, `release/`, secrets/config files, gitignored files, caches, `.deploy*` files. `.git` is never in `git archive`.
 - Verify: `unzip -l release/$V/$V.zip` — check no secrets, no `release/`, no `.git`, no `.deploy*`, no real config, no cache; `docs/` and `docs/changelog.md` present, `docs/decisions/` has only the template and `0001-before_release.md`. Also grep the listing and the zip contents for the host/domain/provider strings and credentials patterns (the `~/.password` entry name and table prefix are allowed and must not be flagged) (look at `.deploy.local` keys only to build the search, never print them). If anything is wrong, fix and rebuild.
 
 ## 8. Final test, commit artifacts, deploy
