@@ -6,11 +6,11 @@
 
 ## sftp-upload
 
-**Purpose**: Upload a file to a remote server via SFTP.
+**Purpose**: Upload or delete files on a remote server via SFTP, and trust the server's SSH host key. Scripts: `upload.py`, `delete.py`, `trust_host.py` (shared `common.py`).
 
 **Inputs**: Local file path; optional host (subdomain of andrealorenzani.name or full domain), remote directory, and flags (--force to overwrite, --trust-new-host for unknown keys).
 
-**Behaviour**: Defaults to `andrealorenzani.name`, directory `<host>/ai` (e.g. `andrealorenzani.name/ai/`; `--dir` overrides). Known domains: `andrealorenzani.name`, `supermaestro.org`. Subdomains need the full hostname in `--host`; credentials resolve from the exact host section, else the parent domain. Refuses to overwrite unless --force is used. Validates host key against `~/.ssh/known_hosts`; rejects unknown hosts unless --trust-new-host is confirmed. Rejects remote paths with `..`. Single file upload only.
+**Behaviour**: Defaults to `andrealorenzani.name`, directory `<host>/ai` (e.g. `andrealorenzani.name/ai/`; `--dir` overrides). Known domains: `andrealorenzani.name`, `supermaestro.org`. Subdomains need the full hostname in `--host`; credentials resolve from the exact host section, else the parent domain. Refuses to overwrite unless --force is used. Validates host key against `~/.ssh/known_hosts`; rejects unknown hosts unless --trust-new-host is confirmed. Rejects remote paths with `..`. Single file upload only. `delete.py` removes plain files from one directory (no wildcards, no recursion, never the login dir); it is a dry run unless `--yes`, and `--rmdir` removes the dir only if empty. `trust_host.py` fetches the server key, prints its fingerprint and appends it to `~/.ssh/known_hosts` only with `--yes` (after the user confirms); it refuses if a different key is already known.
 
 **Credentials**: `~/.password` (INI, chmod 600), with one `[host]` section per domain containing `user`, `password`, and optional `port` (default 22).
 
@@ -39,3 +39,15 @@
 **Credentials**: None read by the skill itself; deployment settings stay in git-ignored files (`.deploy.local`, `config.php`, `.env`, `~/.password`).
 
 **Security notes**: Never writes server host, domain, provider or credentials into any tracked file, the zip, commit messages or agent output. Zip and listing are grepped for host/domain strings and credential patterns; the search is built from keys without printing values. `release/` is excluded from deployment and must not be web-served. Describes features, not algorithms, in docs and the consolidated ADR. Nested copy `tools/new-web-app/release/SKILL.md` must stay identical to `tools/release/SKILL.md`.
+
+## seo-page
+
+**Purpose**: Make every page a browser displays (HTML, PHP view, generated report) search-engine and share friendly, and verify it. Referenced by `new-web-app` (CLAUDE.md "Pages (SEO)" rule, `/feature` review), `release` (pages check before deploy) and `sftp-upload` (before uploading a page).
+
+**Inputs**: The page (local file or URL of the rendered page), its final public URL, and whether it is public or private.
+
+**Behaviour**: First decides public vs private; when unsure the page is treated as private and the user is asked. Public pages get a unique title (30-60 chars) and description (70-160), canonical, Open Graph/Twitter tags with a 1200x630 image, JSON-LD only for content visible on the page, one `h1`, and their text in the HTML the server sends (JS-rendered pages ship a static version, 250+ words). Private pages get `noindex,nofollow` and no sitemap entry. `scripts/seo_check.py FILE_OR_URL [--url CANONICAL] [--private] [--min-words N]` prints FAIL/WARN/ok and exits 1 on any FAIL. `scripts/sitemap.py` writes a sitemap, merging with an existing one (local or live) so other entries are kept, and can append the `Sitemap:` line to a local copy of `robots.txt` without changing other lines. Neither script uploads anything.
+
+**Credentials**: None.
+
+**Security notes**: Read-only GET of the page or sitemap given on the command line; writes only the output files named by the caller. No deceptive SEO (hidden or stuffed keywords, fake reviews or dates, structured data for absent content). A live `robots.txt`/`sitemap.xml` on a shared site is merged, never replaced, with a copy of the previous version kept. Private pages are never made indexable without the user saying so. Submitting the sitemap to search consoles needs the owner's account and is left to the user.

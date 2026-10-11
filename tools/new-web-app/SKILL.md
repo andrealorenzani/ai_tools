@@ -83,12 +83,13 @@ The orchestrating workflow. Content (adapt wording, keep the sequence):
 2. If the request is ambiguous, ask the user to clarify before proceeding.
 3. Spawn `architect` with the feature description → plan. If the plan changes the architecture, show it to the user and get confirmation.
 4. Spawn `implementer` with the plan → code + tests; tests must pass.
-5. Spawn `reviewer` on the result; send blocking issues back to `implementer` (max 2 loops), then report remaining issues to the user.
+5. Spawn `reviewer` on the result; send blocking issues back to `implementer` (max 2 loops), then report remaining issues to the user. If the feature adds or changes a page a browser displays, the `implementer` applies the machine-wide `seo-page` skill and the `reviewer` runs `python3 ~/.claude/skills/seo-page/scripts/seo_check.py <local URL of the page>` (`--private` for admin/login/internal pages): any FAIL is blocking.
 6. Spawn `documenter` with a summary of what changed → docs updated, including an entry in `docs/changelog.md` under `[Unreleased]`.
 7. Report to the user: what was built, files changed, test results, doc updates.
 
 ### `CLAUDE.md` (project root)
 Also create `AGENTS.md` with the same content (or a one-line pointer to `CLAUDE.md`) so other agent tools pick it up. Short: stack summary, how to run/test, "read `docs/architecture.md` and `docs/code.md` before making decisions or searching the code", "new features go through `/feature`", "after any code change that alters structure, invoke the `documenter` agent".
+It MUST contain a **Pages (SEO)** rule: "Every page a browser displays (PHP view, template, static HTML) follows the `seo-page` skill: decide public or private first; public pages get a unique title and description, canonical, Open Graph, JSON-LD and their text in the server-rendered HTML, and are listed in the generated `sitemap.xml`; private pages (admin, login, internal, personal data) get `noindex,nofollow` and stay out of the sitemap. Head tags come from ONE head partial fed by per-page variables. Lint the rendered page with `python3 ~/.claude/skills/seo-page/scripts/seo_check.py <url>` before calling it done." Create that head partial, a `robots.txt` with the `Sitemap:` line and a generated `sitemap.xml` in the skeleton, and list them in `docs/code.md`.
 If a DB is used, it MUST also contain a prominent **Database rules** section, verbatim in spirit:
 - "ALL tables MUST be named with the prefix `<prefix>`. Never create, alter, query or drop a table without it; never touch tables without it."
 - DB connection: the name of the `~/.password` entry and the table prefix may be written in the repo; the host name, user, password and port come from `.env` / `~/.password` and are never written in the repo, docs, zip or printed.

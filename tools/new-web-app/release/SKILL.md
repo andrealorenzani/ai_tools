@@ -56,6 +56,7 @@ cp docs/changelog.md release/$V/changelog.md
 
 ## 8. Final test, commit artifacts, deploy
 - Run the test command again.
+- Pages check: run `python3 ~/.claude/skills/seo-page/scripts/seo_check.py <local URL>` on every public page (`--private` on admin/login/internal ones) and regenerate `sitemap.xml`; fix every FAIL before deploying (see the `seo-page` skill).
 - Commit the `release/<version>/` artifacts (`Release <version>: add release artifacts`), unless the user chose to keep release/ untracked.
 - Run the project's deploy step (`scripts/deploy.sh`, or the `deployer` agent); `release/` must not be uploaded. Report upload result without host names.
 - Final summary to the user: version, what was refactored, docs updated, ADRs consolidated (old ones are in git history and tag `pre-release-<version>`), zip path and size, listing check result, tests, commit hashes, deploy result, follow-ups.
